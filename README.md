@@ -2,7 +2,7 @@
 
 An authentication-gated portable power bank. An ESP32 running MicroPython verifies a PIN entered on a capacitive touch keypad and controls a USB power switch, so the output stays disabled until authorization succeeds.
 
-> **Status:** Work in progress. Currently at the breadboard prototype stage (Stage 1).
+> **Status:** Work in progress. Currently at the breadboard prototype stage (Stage 1). The 20,000 mAh pack described below is the design target, not yet built.
 
 ## Concept
 
@@ -18,6 +18,19 @@ Battery -> charge/protection board -> 5V boost -> [ USB power switch ] -> USB-A 
 
 The switch is off by default. The ESP32 enables it only after a correct PIN, and disables it again after a timeout or when the device is unplugged.
 
+## Target specifications
+
+These are design goals, not measured results.
+
+| Item | Target |
+|---|---|
+| Rated capacity | 20,000 mAh at the 3.7 V cell level (about 8 genuine 18650 cells of 2,500 mAh in parallel) |
+| Usable capacity at 5 V | Lower than rated; typically around two-thirds after conversion losses |
+| Output | Gated USB-A, 5 V, 2-3 A planned |
+| Input | USB-C, charge only |
+| Protection | Overcharge, over-discharge, short-circuit and over-temperature protection, plus a fuse |
+| Enclosure | Tough ABS or polycarbonate (or aluminium), with the cells held firmly in place |
+
 ## Features
 
 | Feature | Status |
@@ -29,6 +42,7 @@ The switch is off by default. The ESP32 enables it only after a correct PIN, and
 | Lockout with growing delays, counter persisted across power cycles | Planned |
 | Gated USB-A output with auto-lock timeout | Planned |
 | Deep sleep while locked, wake on button or touch | Planned |
+| 20,000 mAh battery pack with protection circuit | Planned |
 | Battery percentage readout (MAX17048) | Planned |
 | Optional fingerprint unlock | Considered |
 
@@ -43,6 +57,12 @@ The switch is off by default. The ESP32 enables it only after a correct PIN, and
 - Breadboard, jumper wires, 10 kOhm resistors
 
 The prototype runs on USB power. The battery, charge board and boost converter are added in a later stage.
+
+### Battery stage (later)
+
+- About 8 genuine 18650 cells from known makers, wired in parallel
+- Protection board (overcharge, over-discharge, short circuit, over-temperature) and a fuse
+- Charge and boost circuit rated for a 2-3 A output. The small boards used for early testing are not sufficient for a pack this size.
 
 ## Wiring (Stage 1)
 
@@ -80,8 +100,10 @@ VoltGuard/
 4. Gated output with auto-lock timeout
 5. Lockout with persistent failed-attempt counter
 6. Deep sleep and wake handling
-7. Battery, charge board and boost converter integration
-8. Enclosure and security testing
+7. Battery pack (about 8 cells) with protection board and fuse
+8. Charge and boost circuit sized for 2-3 A output
+9. Enclosure design
+10. Security and safety testing
 
 ## Security notes
 
@@ -90,6 +112,12 @@ VoltGuard/
 - The failed-attempt counter must be stored in flash, not RAM, otherwise cutting power resets the lockout.
 - A short PIN has a small search space. If an attacker can read the flash, a hash alone will not protect it. ESP32 flash encryption and secure boot are planned for hardening.
 - Do not commit real PINs, hashes or salts to this repository.
+
+## Safety
+
+- Use only genuine cells from known manufacturers. Counterfeit cells are a common cause of weak or dangerous packs.
+- Treat early builds as prototypes and test them carefully before regular use.
+- This is not a finished product. Check the applicable safety and compliance requirements (for example SON and IEC 62133) before any commercial use.
 
 ## License
 
